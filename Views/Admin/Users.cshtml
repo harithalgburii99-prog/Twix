@@ -1,70 +1,80 @@
 @model List<Twix.Models.User>
-@{ ViewBag.Title = "Manage Users · Admin"; }
+@{
+    ViewBag.Title = "Manage Users · Admin";
+}
 
 <div class="admin-wrap">
-  <div class="admin-header">
-    <h1>👥 Users</h1>
-    <a class="btn btn-outline btn-sm" href="/Admin">← Dashboard</a>
-  </div>
+    <div class="admin-header">
+        <h1>👥 Users</h1>
+        <a class="btn btn-outline btn-sm" href="/Admin">← Dashboard</a>
+    </div>
 
-  <form method="get" style="margin-bottom:20px">
-    <input name="q" class="input" style="max-width:340px" placeholder="🔍 Search users…" value="@ViewBag.Query"/>
-    <button type="submit" class="btn btn-outline btn-sm">Search</button>
-  </form>
+    <form method="get" style="margin-bottom:20px">
+        <input name="q" class="input" style="max-width:340px"
+               placeholder="🔍 Search users…" value="@ViewBag.Query" />
+        <button type="submit" class="btn btn-outline btn-sm">Search</button>
+    </form>
 
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>User</th><th>Email</th><th>Roles</th><th>Status</th><th>Joined</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      @foreach (var u in Model)
-      {
-        <tr class="@(u.IsBanned ? "row-banned" : "")">
-          <td>
-            <a href="/Profile/@u.UserName"><strong>@u.DisplayName</strong></a><br/>
-            <small style="color:var(--muted)">@@@u.UserName</small>
-          </td>
-          <td>@u.Email</td>
-          <td>
-            @if (u.IsAdmin) { <span class="badge-admin">Admin</span> }
-            else            { <span style="color:var(--muted)">User</span> }
-          </td>
-          <td>@(u.IsBanned ? "🚫 Banned" : "✅ Active")</td>
-          <td>@u.CreatedAt.ToString("MMM d, yyyy")</td>
-          <td class="action-cell">
-            <a class="btn btn-outline btn-sm" href="/Admin/EditUser/@u.Id">Edit</a>
+    <table class="admin-table">
+        <thead>
+            <tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr class="@(u.IsBanned ? "row-banned" : "")">
+                    <td>
+                        <a href="/Profile/@u.UserName"><strong>@u.DisplayName</strong></a><br />
+                        <small style="color:var(--muted)">@@@u.UserName</small>
+                    </td>
+                    <td>@u.Email</td>
+                    <td>
+                        @if (u.IsAdmin)
+                        {
+                            <span class="badge-admin">Admin</span>
+                        }
+                        else
+                        {
 
-            <form asp-action="BanUser" method="post" style="display:inline">
-              @Html.AntiForgeryToken()
-              <input type="hidden" name="id" value="@u.Id"/>
-              <button type="submit" class="btn btn-sm @(u.IsBanned ? "btn-outline" : "btn-danger")"
-                      onclick="return confirm('@(u.IsBanned ? "Unban" : "Ban") this user?')">
-                @(u.IsBanned ? "Unban" : "Ban")
-              </button>
-            </form>
+                            <span style="color:var(--muted)">User</span>
+                        }
+                    </td>
+                    <td>@(u.IsBanned ? "🚫 Banned" : "✅ Active")</td>
+                    <td>@u.CreatedAt.ToString("MMM d, yyyy")</td>
+                    <td class="action-cell">
 
-            <form asp-action="MakeAdmin" method="post" style="display:inline">
-              @Html.AntiForgeryToken()
-              <input type="hidden" name="id" value="@u.Id"/>
-              <button type="submit" class="btn btn-sm btn-outline"
-                      onclick="return confirm('@(u.IsAdmin ? "Remove admin from" : "Make admin:") @u.UserName?')">
-                @(u.IsAdmin ? "Remove Admin" : "Make Admin")
-              </button>
-            </form>
+                        <a class="btn btn-outline btn-sm" href="/Admin/EditUser/@u.Id">Edit</a>
 
-            <form asp-action="DeleteUser" method="post" style="display:inline">
-              @Html.AntiForgeryToken()
-              <input type="hidden" name="id" value="@u.Id"/>
-              <button type="submit" class="btn btn-danger btn-sm"
-                      onclick="return confirm('Permanently delete @u.UserName? This cannot be undone.')">
-                Delete
-              </button>
-            </form>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+                        <form action="/Admin/BanUser" method="post" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button type="submit" class="btn btn-sm @(u.IsBanned ? "btn-outline" : "btn-danger")"
+                                    onclick="return confirm('@(u.IsBanned ? "Unban" : "Ban") @u.UserName?')">
+                                @(u.IsBanned ? "Unban" : "Ban")
+                            </button>
+                        </form>
+
+                        <form action="/Admin/MakeAdmin" method="post" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline"
+                                    onclick="return confirm('@(u.IsAdmin ? "Remove admin from" : "Make admin:") @u.UserName?')">
+                                @(u.IsAdmin ? "Demote" : "Make Admin")
+                            </button>
+                        </form>
+
+                        <form action="/Admin/DeleteUser" method="post" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@u.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Permanently delete @u.UserName?')">
+                                Delete
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

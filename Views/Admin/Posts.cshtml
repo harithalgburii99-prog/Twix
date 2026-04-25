@@ -1,53 +1,57 @@
 @model List<Twix.Models.Post>
-@{ ViewBag.Title = "Manage Posts · Admin"; }
+@{
+    ViewBag.Title = "Manage Posts · Admin";
+}
 
 <div class="admin-wrap">
-  <div class="admin-header">
-    <h1>📝 Posts</h1>
-    <a class="btn btn-outline btn-sm" href="/Admin">← Dashboard</a>
-  </div>
+    <div class="admin-header">
+        <h1>📝 Posts</h1>
+        <a class="btn btn-outline btn-sm" href="/Admin">← Dashboard</a>
+    </div>
 
-  <form method="get" style="margin-bottom:20px">
-    <input name="q" class="input" style="max-width:340px"
-           placeholder="🔍 Search posts or author…" value="@ViewBag.Query"/>
-    <button type="submit" class="btn btn-outline btn-sm">Search</button>
-  </form>
+    <form method="get" style="margin-bottom:20px">
+        <input name="q" class="input" style="max-width:340px"
+               placeholder="🔍 Search posts or author…" value="@ViewBag.Query" />
+        <button type="submit" class="btn btn-outline btn-sm">Search</button>
+    </form>
 
-  <table class="admin-table">
-    <thead>
-      <tr><th>Author</th><th>Content</th><th>Likes</th><th>Status</th><th>Date</th><th>Actions</th></tr>
-    </thead>
-    <tbody>
-      @foreach (var p in Model)
-      {
-        <tr class="@(p.IsDeleted ? "row-banned" : "")">
-          <td><a href="/Profile/@p.Author.UserName">@@@p.Author.UserName</a></td>
-          <td style="max-width:260px">@(p.Content.Length > 80 ? p.Content[..80] + "…" : p.Content)</td>
-          <td>@p.Likes?.Count</td>
-          <td>@(p.IsDeleted ? "🗑 Removed" : "✅ Live")</td>
-          <td>@p.CreatedAt.ToString("MMM d, yyyy")</td>
-          <td class="action-cell">
-            @if (!p.IsDeleted)
+    <table class="admin-table">
+        <thead>
+            <tr><th>Author</th><th>Content</th><th>Likes</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
             {
-              <a class="btn btn-outline btn-sm" href="/Admin/EditPost/@p.Id">Edit</a>
-              <form asp-action="DeletePost" method="post" style="display:inline">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@p.Id"/>
-                <button class="btn btn-danger btn-sm"
-                        onclick="return confirm('Remove this post?')" type="submit">Remove</button>
-              </form>
+                <tr class="@(p.IsDeleted ? "row-banned" : "")">
+                    <td><a href="/Profile/@p.Author.UserName">@@@p.Author.UserName</a></td>
+                    <td style="max-width:260px">@(p.Content.Length > 80 ? p.Content[..80] + "…" : p.Content)</td>
+                    <td>@(p.Likes?.Count ?? 0)</td>
+                    <td>@(p.IsDeleted ? "🗑 Removed" : "✅ Live")</td>
+                    <td>@p.CreatedAt.ToString("MMM d, yyyy")</td>
+                    <td class="action-cell">
+                        @if (!p.IsDeleted)
+                        {
+                            <a class="btn btn-outline btn-sm" href="/Admin/EditPost/@p.Id">Edit</a>
+                            <form action="/Admin/DeletePost" method="post" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <button class="btn btn-danger btn-sm" type="submit"
+                                        onclick="return confirm('Remove this post?')">
+                                    Remove
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form action="/Admin/RestorePost" method="post" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@p.Id" />
+                                <button class="btn btn-outline btn-sm" type="submit">Restore</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
             }
-            else
-            {
-              <form asp-action="RestorePost" method="post" style="display:inline">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@p.Id"/>
-                <button class="btn btn-outline btn-sm" type="submit">Restore</button>
-              </form>
-            }
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+        </tbody>
+    </table>
 </div>
