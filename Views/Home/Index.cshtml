@@ -1,0 +1,76 @@
+@model List<Twix.ViewModels.PostViewModel>
+@{ ViewBag.Title = "Home · Twix"; }
+
+<div class="feed-wrap">
+  <div class="feed-header">
+    <div class="feed-title">
+      @if (ViewBag.Query != null) { <span>Results for "@ViewBag.Query"</span> }
+      else { <span>Home</span> }
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="feed-tabs">
+    <a class="feed-tab @(ViewBag.Query==null?"active":"")" href="/">For You</a>
+    <a class="feed-tab" href="/Home/Following">Following</a>
+  </div>
+
+  <!-- Compose -->
+  <div class="compose-box">
+    <div class="compose-avatar">@User.Identity!.Name![0].ToString().ToUpper()</div>
+    <form asp-controller="Home" asp-action="Create" method="post" class="compose-form">
+      @Html.AntiForgeryToken()
+      <textarea name="Content" class="compose-textarea" placeholder="What's happening?!"
+                maxlength="280" id="compose-text" oninput="updateCount(this)"></textarea>
+      <div class="compose-footer">
+        <span class="char-count" id="char-count">280</span>
+        <button type="submit" class="btn btn-primary btn-sm">Twix it</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Posts -->
+  <div class="posts-list">
+    @if (!Model.Any())
+    {
+      <div class="empty-state">
+        <div class="empty-icon">🔥</div>
+        <div class="empty-title">Nothing here yet</div>
+        <div class="empty-sub">Be the first to post something!</div>
+      </div>
+    }
+    @foreach (var post in Model)
+    {
+      <partial name="_PostCard" model="post"/>
+    }
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="edit-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Edit Post</span>
+      <button onclick="closeEdit()" class="modal-close">✕</button>
+    </div>
+    <form asp-controller="Home" asp-action="Edit" method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="id" id="edit-post-id"/>
+      <textarea name="content" id="edit-content" class="compose-textarea" maxlength="280"></textarea>
+      <div class="compose-footer">
+        <span></span>
+        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Search bar -->
+<div class="right-panel">
+  <div class="panel-card">
+    <form asp-controller="Home" asp-action="Search" method="get">
+      <input name="q" class="search-input" placeholder="🔍 Search Twix"
+             value="@ViewBag.Query"/>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+@model Twix.Models.User
+@{ ViewBag.Title = $"Edit @{Model.UserName} · Admin"; }
+
+<div class="admin-wrap" style="max-width:560px">
+  <div class="admin-header">
+    <h1>✏️ Edit User</h1>
+    <a class="btn btn-outline btn-sm" href="/Admin/Users">← Users</a>
+  </div>
+
+  <div class="admin-card">
+    <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <strong style="font-size:18px">@Model.DisplayName</strong>
+      <span style="color:var(--muted);margin-left:8px">@@@Model.UserName</span><br/>
+      <small style="color:var(--muted)">@Model.Email · Joined @Model.CreatedAt.ToString("MMMM d, yyyy")</small>
+    </div>
+
+    <form asp-action="EditUser" method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="id" value="@Model.Id"/>
+
+      <label class="field-label">Display Name</label>
+      <input name="displayName" class="input" value="@Model.DisplayName"/>
+
+      <label class="field-label">Bio</label>
+      <textarea name="bio" class="input" rows="3">@Model.Bio</textarea>
+
+      <label class="field-label">Location</label>
+      <input name="location" class="input" value="@Model.Location"/>
+
+      <div style="display:flex;gap:24px;margin:16px 0">
+        <label class="checkbox-row">
+          <input type="checkbox" name="isAdmin" value="true" @(Model.IsAdmin ? "checked" : "")/>
+          <span>Administrator</span>
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" name="isBanned" value="true" @(Model.IsBanned ? "checked" : "")/>
+          <span style="color:#e74c3c">Banned</span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:12px">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="/Admin/Users" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+@model Twix.ViewModels.RegisterViewModel
+@{ ViewBag.Title = "Sign Up · Twix"; Layout = "_Layout"; }
+
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">𝕿</div>
+    <h1 class="auth-title">Create your account</h1>
+
+    <form asp-action="Register" method="post">
+      @Html.AntiForgeryToken()
+      <div asp-validation-summary="All" class="val-summary"></div>
+
+      <label class="field-label">Username</label>
+      <input asp-for="UserName" class="input" placeholder="yourhandle"/>
+      <span asp-validation-for="UserName" class="field-error"></span>
+
+      <label class="field-label">Display Name</label>
+      <input asp-for="DisplayName" class="input" placeholder="Your Name"/>
+
+      <label class="field-label">Email</label>
+      <input asp-for="Email" class="input" placeholder="you@example.com" autocomplete="email"/>
+      <span asp-validation-for="Email" class="field-error"></span>
+
+      <label class="field-label">Password <span style="color:var(--muted);font-weight:400">(8+ chars)</span></label>
+      <input asp-for="Password" type="password" class="input" placeholder="••••••••"/>
+      <span asp-validation-for="Password" class="field-error"></span>
+
+      <label class="field-label">Bio <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+      <textarea asp-for="Bio" class="input" rows="2" placeholder="Tell the world about you"></textarea>
+
+      <button type="submit" class="btn btn-primary btn-full">Create Account →</button>
+    </form>
+
+    <p class="auth-link">Already have an account? <a href="/Account/Login">Sign in</a></p>
+  </div>
+</div>

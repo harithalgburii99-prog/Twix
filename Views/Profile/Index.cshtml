@@ -1,0 +1,76 @@
+@model List<Twix.ViewModels.PostViewModel>
+@{ 
+    var profile = (Twix.Models.User)ViewBag.Profile;
+    ViewBag.Title = $"@{profile.UserName} · Twix";
+}
+
+<div class="feed-wrap">
+  <div class="profile-banner"></div>
+  <div class="profile-info">
+    <div class="profile-avatar-lg">@profile.DisplayName[0]</div>
+    <div class="profile-name-row">
+      <div>
+        <div class="profile-display-name">
+          @profile.DisplayName
+          @if (profile.IsAdmin) { <span class="badge-admin">⚙ Admin</span> }
+        </div>
+        <div class="profile-handle">@@@profile.UserName</div>
+      </div>
+      @if ((bool)ViewBag.IsOwn)
+      {
+        <a class="btn btn-outline btn-sm" href="/Profile/Edit">Edit Profile</a>
+      }
+      else
+      {
+        <form asp-controller="Profile" asp-action="Follow" method="post">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="userId" value="@profile.Id"/>
+          <button type="submit" class="btn @((bool)ViewBag.IsFollowing ? "btn-outline" : "btn-primary") btn-sm">
+            @((bool)ViewBag.IsFollowing ? "Unfollow" : "Follow")
+          </button>
+        </form>
+      }
+    </div>
+    @if (!string.IsNullOrEmpty(profile.Bio))     { <p class="profile-bio">@profile.Bio</p> }
+    @if (!string.IsNullOrEmpty(profile.Location)){ <p class="profile-meta">📍 @profile.Location</p> }
+    <p class="profile-meta">🎂 Joined @profile.CreatedAt.ToString("MMMM yyyy")</p>
+    <div class="profile-stats">
+      <span><strong>@ViewBag.FollowingCount</strong> Following</span>
+      <span><strong>@ViewBag.FollowerCount</strong> Followers</span>
+      <span><strong>@Model.Count</strong> Twixes</span>
+    </div>
+  </div>
+
+  <div class="posts-list">
+    @foreach (var post in Model)
+    {
+      <partial name="_PostCard" model="post"/>
+    }
+    @if (!Model.Any())
+    {
+      <div class="empty-state">
+        <div class="empty-icon">🌑</div>
+        <div class="empty-title">No posts yet</div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" id="edit-modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Edit Post</span>
+      <button onclick="closeEdit()" class="modal-close">✕</button>
+    </div>
+    <form asp-controller="Home" asp-action="Edit" method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="id" id="edit-post-id"/>
+      <textarea name="content" id="edit-content" class="compose-textarea" maxlength="280"></textarea>
+      <div class="compose-footer">
+        <span></span>
+        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+      </div>
+    </form>
+  </div>
+</div>

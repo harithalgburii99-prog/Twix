@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>@(ViewBag.Title ?? "Twix")</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/twix.css" asp-append-version="true"/>
+</head>
+<body>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">𝕿</div>
+      <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" href="/">
+        <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+      </a>
+      <a class="nav-item" href="/Home/Search">
+        <span class="nav-icon">🔍</span><span class="nav-label">Explore</span>
+      </a>
+      <a class="nav-item" href="/Home/Bookmarks">
+        <span class="nav-icon">🔖</span><span class="nav-label">Bookmarks</span>
+      </a>
+      <a class="nav-item" href="/Profile/@User.Identity.Name">
+        <span class="nav-icon">👤</span><span class="nav-label">Profile</span>
+      </a>
+      @if (User.IsInRole("Admin"))
+      {
+        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" ? "active" : "")" href="/Admin">
+          <span class="nav-icon">⚙️</span><span class="nav-label">Admin</span>
+        </a>
+      }
+      <div class="sidebar-spacer"></div>
+      <form asp-controller="Account" asp-action="Logout" method="post">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="nav-item nav-logout">
+          <span class="nav-icon">⏏</span><span class="nav-label">Sign Out</span>
+        </button>
+      </form>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      @if (TempData["Success"] != null)
+      {
+        <div class="alert alert-success">@TempData["Success"]</div>
+      }
+      @RenderBody()
+    </main>
+  </div>
+}
+else
+{
+  @RenderBody()
+}
+
+<script src="/js/twix.js" asp-append-version="true"></script>
+</body>
+</html>

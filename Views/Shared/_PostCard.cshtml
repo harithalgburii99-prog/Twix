@@ -1,0 +1,47 @@
+@model Twix.ViewModels.PostViewModel
+@{
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+<article class="post-card" id="post-@Model.Id">
+  <div class="post-avatar">@Model.AuthorName[0]</div>
+  <div class="post-body">
+    <div class="post-header">
+      <a class="post-display-name" href="/Profile/@Model.AuthorHandle">@Model.AuthorName</a>
+      @if (Model.AuthorIsAdmin) { <span class="badge-admin">⚙ Admin</span> }
+      <span class="post-handle">@@@Model.AuthorHandle</span>
+      <span class="post-time">· @Model.CreatedAt.ToString("MMM d")</span>
+    </div>
+    <p class="post-content">@Model.Content</p>
+    <div class="post-actions">
+      <!-- Like -->
+      <form asp-controller="Home" asp-action="Like" method="post" style="display:inline">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="postId"   value="@Model.Id"/>
+        <input type="hidden" name="returnUrl" value="@returnUrl"/>
+        <button type="submit" class="action-btn @(Model.IsLiked ? "liked" : "")">
+          @(Model.IsLiked ? "❤️" : "🤍") @Model.LikeCount
+        </button>
+      </form>
+      <!-- Bookmark -->
+      <form asp-controller="Home" asp-action="Bookmark" method="post" style="display:inline">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="postId"   value="@Model.Id"/>
+        <input type="hidden" name="returnUrl" value="@returnUrl"/>
+        <button type="submit" class="action-btn @(Model.IsBookmarked ? "bookmarked" : "")">
+          @(Model.IsBookmarked ? "🔖" : "📎")
+        </button>
+      </form>
+      <!-- Edit / Delete (own post or admin) -->
+      @if (Model.IsOwn || User.IsInRole("Admin"))
+      {
+        <button class="action-btn" onclick="openEdit(@Model.Id, '@Model.Content.Replace("'","\\'")')">✏️</button>
+        <form asp-controller="Home" asp-action="Delete" method="post" style="display:inline"
+              onsubmit="return confirm('Delete this post?')">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="id" value="@Model.Id"/>
+          <button type="submit" class="action-btn danger">🗑</button>
+        </form>
+      }
+    </div>
+  </div>
+</article>

@@ -1,0 +1,72 @@
+@{ ViewBag.Title = "Admin Dashboard · Twix"; }
+
+<div class="admin-wrap">
+  <div class="admin-header">
+    <h1>⚙️ Admin Dashboard</h1>
+    <p style="color:var(--muted)">Full control over the platform.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="stat-card">
+      <div class="stat-num">@ViewBag.UserCount</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">@ViewBag.PostCount</div>
+      <div class="stat-label">Active Posts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">@ViewBag.LikeCount</div>
+      <div class="stat-label">Total Likes</div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-num">@ViewBag.BannedCount</div>
+      <div class="stat-label">Banned Users</div>
+    </div>
+  </div>
+
+  <!-- Quick links -->
+  <div class="admin-actions">
+    <a class="btn btn-primary" href="/Admin/Users">👥 Manage Users</a>
+    <a class="btn btn-outline" href="/Admin/Posts">📝 Manage Posts</a>
+  </div>
+
+  <!-- Recent users -->
+  <div class="admin-section">
+    <h2>Recent Users</h2>
+    <table class="admin-table">
+      <thead><tr><th>Username</th><th>Email</th><th>Admin</th><th>Banned</th><th>Joined</th></tr></thead>
+      <tbody>
+        @foreach (Twix.Models.User u in ViewBag.RecentUsers)
+        {
+          <tr>
+            <td><a href="/Profile/@u.UserName">@@@u.UserName</a></td>
+            <td>@u.Email</td>
+            <td>@(u.IsAdmin ? "✅" : "—")</td>
+            <td>@(u.IsBanned ? "🚫" : "—")</td>
+            <td>@u.CreatedAt.ToString("MMM d, yyyy")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent posts -->
+  <div class="admin-section">
+    <h2>Recent Posts</h2>
+    <table class="admin-table">
+      <thead><tr><th>Author</th><th>Content</th><th>Date</th></tr></thead>
+      <tbody>
+        @foreach (Twix.Models.Post p in ViewBag.RecentPosts)
+        {
+          <tr>
+            <td>@@@p.Author.UserName</td>
+            <td>@(p.Content.Length > 60 ? p.Content[..60] + "…" : p.Content)</td>
+            <td>@p.CreatedAt.ToString("MMM d")</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

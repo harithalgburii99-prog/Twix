@@ -1,0 +1,26 @@
+@model Twix.ViewModels.EditProfileViewModel
+@{ ViewBag.Title = "Edit Profile · Twix"; }
+
+<div class="feed-wrap" style="max-width:540px">
+  <div class="feed-header"><div class="feed-title">Edit Profile</div></div>
+  <div style="padding:24px">
+    <form asp-action="Edit" method="post">
+      @Html.AntiForgeryToken()
+      <div asp-validation-summary="All" class="val-summary"></div>
+
+      <label class="field-label">Display Name</label>
+      <input asp-for="DisplayName" class="input"/>
+
+      <label class="field-label">Bio</label>
+      <textarea asp-for="Bio" class="input" rows="3"></textarea>
+
+      <label class="field-label">Location</label>
+      <input asp-for="Location" class="input" placeholder="City, Country"/>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="/Profile/@User.Identity!.Name" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

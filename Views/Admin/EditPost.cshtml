@@ -1,0 +1,30 @@
+@model Twix.Models.Post
+@{ ViewBag.Title = "Edit Post · Admin"; }
+
+<div class="admin-wrap" style="max-width:560px">
+  <div class="admin-header">
+    <h1>✏️ Edit Post</h1>
+    <a class="btn btn-outline btn-sm" href="/Admin/Posts">← Posts</a>
+  </div>
+
+  <div class="admin-card">
+    <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <small style="color:var(--muted)">
+        By @@@Model.Author.UserName · @Model.CreatedAt.ToString("MMM d, yyyy HH:mm")
+      </small>
+    </div>
+
+    <form asp-action="EditPost" method="post">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="id" value="@Model.Id"/>
+
+      <label class="field-label">Content <span style="color:var(--muted)">(max 280)</span></label>
+      <textarea name="content" class="input" rows="5" maxlength="280">@Model.Content</textarea>
+
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="/Admin/Posts" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
