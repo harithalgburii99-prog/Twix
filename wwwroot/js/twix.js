@@ -1,94 +1,84 @@
 /* ═══════════════════════════════════════════════════════════════
-   TWIX JS — particles + scroll reveal + UI interactions
+   TWIX JS — particles, scroll reveal, modals, interactions
    ═══════════════════════════════════════════════════════════════ */
 
-// ── Particle background ──────────────────────────────────────────
+// ── Particle canvas ───────────────────────────────────────────────
 (function () {
     const canvas = document.getElementById('bg-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-
-    let W, H, particles = [];
-
-    const PARTICLE_COUNT = 55;
-    const COLORS = [
-        'rgba(255,153,51,',
-        'rgba(255,180,80,',
-        'rgba(200,100,20,',
-        'rgba(255,120,40,',
-    ];
+    let W, H, particles = [], mouse = { x: 0, y: 0 };
 
     function resize() {
         W = canvas.width = window.innerWidth;
         H = canvas.height = window.innerHeight;
+        mouse.x = W / 2;
+        mouse.y = H / 2;
     }
 
-    function rand(min, max) { return Math.random() * (max - min) + min; }
+    function rand(a, b) { return Math.random() * (b - a) + a; }
 
-    function createParticle() {
+    function makeParticle() {
+        const big = Math.random() < 0.1;
         return {
-            x: rand(0, W),
-            y: rand(0, H),
-            r: rand(0.5, 2.2),
-            dx: rand(-0.25, 0.25),
-            dy: rand(-0.4, -0.08),
-            alpha: rand(0.08, 0.45),
-            da: rand(-0.002, 0.002),
-            color: COLORS[Math.floor(Math.random() * COLORS.length)],
-            // occasional big glowing orbs
-            glow: Math.random() < 0.12,
+            x: rand(0, W), y: rand(0, H),
+            r: big ? rand(2, 4) : rand(0.4, 1.8),
+            dx: rand(-0.3, 0.3),
+            dy: rand(-0.5, -0.1),
+            alpha: rand(0.06, 0.5),
+            da: rand(-0.003, 0.003),
+            big,
+            hue: rand(20, 40), // orange range
         };
     }
 
-    function initParticles() {
-        particles = [];
-        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
+    function init() {
+        particles = Array.from({ length: 70 }, makeParticle);
     }
 
-    // Subtle mouse parallax
-    let mx = W / 2, my = H / 2;
-    window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
-    function draw() {
+    function frame() {
         ctx.clearRect(0, 0, W, H);
 
-        // Very subtle radial glow following mouse
-        const grad = ctx.createRadialGradient(mx, my, 0, mx, my, Math.max(W, H) * 0.55);
-        grad.addColorStop(0, 'rgba(255,153,51,0.04)');
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
+        // Mouse glow
+        const mg = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 350);
+        mg.addColorStop(0, 'rgba(255,140,30,0.05)');
+        mg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = mg;
         ctx.fillRect(0, 0, W, H);
 
-        particles.forEach((p, i) => {
-            // Move
-            p.x += p.dx + (mx / W - 0.5) * 0.08;
-            p.y += p.dy;
+        particles.forEach(p => {
+            // Gentle mouse attraction
+            const ex = (mouse.x / W - 0.5) * 0.12;
+            const ey = (mouse.y / H - 0.5) * 0.06;
+            p.x += p.dx + ex;
+            p.y += p.dy + ey;
             p.alpha += p.da;
 
-            // Clamp alpha
-            if (p.alpha > 0.5) { p.da = -Math.abs(p.da); }
-            if (p.alpha < 0.03) { p.da = Math.abs(p.da); }
-
-            // Wrap around
+            if (p.alpha > 0.55) p.da = -Math.abs(p.da);
+            if (p.alpha < 0.02) p.da = Math.abs(p.da);
             if (p.y < -10) { p.y = H + 10; p.x = rand(0, W); }
-            if (p.x < -10) { p.x = W + 10; }
-            if (p.x > W + 10) { p.x = -10; }
+            if (p.x < -10) p.x = W + 10;
+            if (p.x > W + 10) p.x = -10;
 
-            // Draw
             ctx.save();
-            if (p.glow) {
-                // Big soft orb
-                const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 18);
-                g.addColorStop(0, p.color + (p.alpha * 0.8) + ')');
-                g.addColorStop(1, p.color + '0)');
+            if (p.big) {
+                // Glowing orb
+                const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 20);
+                g.addColorStop(0, `hsla(${p.hue},100%,60%,${p.alpha * 0.9})`);
+                g.addColorStop(0.4, `hsla(${p.hue},100%,50%,${p.alpha * 0.3})`);
+                g.addColorStop(1, 'transparent');
                 ctx.fillStyle = g;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r * 18, 0, Math.PI * 2);
+                ctx.arc(p.x, p.y, p.r * 20, 0, Math.PI * 2);
                 ctx.fill();
             } else {
-                // Small crisp dot
+                // Crisp dot with soft glow
                 ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = p.color + '1)';
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = `hsl(${p.hue},100%,60%)`;
+                ctx.fillStyle = `hsl(${p.hue},100%,65%)`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                 ctx.fill();
@@ -96,16 +86,16 @@
             ctx.restore();
         });
 
-        // Draw subtle connecting lines between nearby particles
+        // Connection lines
         for (let i = 0; i < particles.length; i++) {
             for (let j = i + 1; j < particles.length; j++) {
                 const a = particles[i], b = particles[j];
-                const dist = Math.hypot(a.x - b.x, a.y - b.y);
-                if (dist < 100) {
+                const d = Math.hypot(a.x - b.x, a.y - b.y);
+                if (d < 110) {
                     ctx.save();
-                    ctx.globalAlpha = (1 - dist / 100) * 0.06;
-                    ctx.strokeStyle = 'rgba(255,153,51,1)';
-                    ctx.lineWidth = 0.5;
+                    ctx.globalAlpha = (1 - d / 110) * 0.07;
+                    ctx.strokeStyle = '#ff9933';
+                    ctx.lineWidth = 0.6;
                     ctx.beginPath();
                     ctx.moveTo(a.x, a.y);
                     ctx.lineTo(b.x, b.y);
@@ -115,113 +105,75 @@
             }
         }
 
-        requestAnimationFrame(draw);
+        requestAnimationFrame(frame);
     }
 
-    window.addEventListener('resize', () => { resize(); initParticles(); });
-    resize();
-    initParticles();
-    draw();
+    window.addEventListener('resize', () => { resize(); init(); });
+    resize(); init(); frame();
 })();
 
-// ── Scroll reveal ────────────────────────────────────────────────
+// ── Scroll reveal ─────────────────────────────────────────────────
 (function () {
-    // Mark elements for reveal
-    const selectors = [
-        '.post-card',
-        '.stat-card',
-        '.admin-section',
-        '.admin-card',
-        '.profile-info',
-        '.compose-box',
-        '.feed-tabs',
-    ];
-
-    function addRevealClass() {
-        selectors.forEach(sel => {
-            document.querySelectorAll(sel).forEach(el => {
-                // Don't double-add
-                if (!el.classList.contains('post-card')) { // post-cards use CSS animation
-                    el.classList.add('reveal');
-                }
-            });
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); }
         });
+    }, { threshold: 0.07 });
+
+    function setup() {
+        document.querySelectorAll(
+            '.stat-card, .admin-section, .admin-card, .profile-info, .compose-box, .feed-tabs, .panel-card'
+        ).forEach(el => { el.classList.add('reveal'); io.observe(el); });
     }
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.08 });
-
-    function observeAll() {
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    }
-
-    // Run after DOM ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => { addRevealClass(); observeAll(); });
-    } else {
-        addRevealClass();
-        observeAll();
-    }
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', setup)
+        : setup();
 })();
 
-// ── Char counter ─────────────────────────────────────────────────
+// ── Char counter ──────────────────────────────────────────────────
 function updateCount(textarea) {
     const el = document.getElementById('char-count');
     if (!el) return;
-    const remaining = 280 - textarea.value.length;
-    el.textContent = remaining;
-    el.style.color = remaining < 20 ? '#e74c3c' : remaining < 50 ? '#ff9933' : '';
+    const left = 280 - textarea.value.length;
+    el.textContent = left;
+    el.style.color = left < 20 ? '#e74c3c' : left < 50 ? '#ff9933' : '';
 }
 
-// ── Edit modal ───────────────────────────────────────────────────
+// ── Edit modal ────────────────────────────────────────────────────
 function openEdit(postId, content) {
     const modal = document.getElementById('edit-modal');
-    const idInput = document.getElementById('edit-post-id');
-    const textarea = document.getElementById('edit-content');
-    if (!modal || !idInput || !textarea) return;
-    idInput.value = postId;
-    textarea.value = content;
+    if (!modal) return;
+    document.getElementById('edit-post-id').value = postId;
+    const ta = document.getElementById('edit-content');
+    ta.value = content;
     modal.style.display = 'flex';
-    textarea.focus();
-    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
 }
-
 function closeEdit() {
-    const modal = document.getElementById('edit-modal');
-    if (modal) modal.style.display = 'none';
+    const m = document.getElementById('edit-modal');
+    if (m) m.style.display = 'none';
 }
-
-// Close on backdrop click
 document.addEventListener('click', e => {
-    const modal = document.getElementById('edit-modal');
-    if (modal && e.target === modal) closeEdit();
+    const m = document.getElementById('edit-modal');
+    if (m && e.target === m) closeEdit();
 });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEdit(); });
 
-// Close on Escape
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeEdit();
-});
-
-// ── Like button pop animation ─────────────────────────────────────
+// ── Button pop on click ───────────────────────────────────────────
 document.addEventListener('click', e => {
     const btn = e.target.closest('.action-btn');
     if (!btn) return;
-    btn.style.transform = 'scale(1.35)';
-    setTimeout(() => { btn.style.transform = ''; }, 180);
+    btn.style.transform = 'scale(1.4)';
+    setTimeout(() => btn.style.transform = '', 180);
 });
 
 // ── Auto-dismiss alerts ───────────────────────────────────────────
-document.querySelectorAll('.alert').forEach(alert => {
+document.querySelectorAll('.alert').forEach(a => {
     setTimeout(() => {
-        alert.style.transition = 'opacity .5s, max-height .5s';
-        alert.style.opacity = '0';
-        alert.style.maxHeight = '0';
-        setTimeout(() => alert.remove(), 500);
+        a.style.transition = 'opacity .5s, max-height .5s, padding .5s';
+        a.style.opacity = '0'; a.style.maxHeight = '0'; a.style.padding = '0';
+        setTimeout(() => a.remove(), 500);
     }, 3500);
 });

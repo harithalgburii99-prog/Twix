@@ -9,13 +9,21 @@
 </head>
 <body>
 
-    <!-- Animated particle canvas — always present, behind everything -->
+    <!-- Animated background layers -->
+    <div class="bg-scene">
+        <div class="bg-grid"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="bg-noise"></div>
+    </div>
+
     <canvas id="bg-canvas"></canvas>
 
     @if (User.Identity?.IsAuthenticated == true)
     {
         <div class="app-shell">
-            <!-- SIDEBAR -->
             <nav class="sidebar">
                 <div class="sidebar-logo">𝕿</div>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" href="/">
@@ -45,7 +53,6 @@
                 </form>
             </nav>
 
-            <!-- MAIN -->
             <main class="main-content">
                 @if (TempData["Success"] != null)
                 {

@@ -1,18 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════
-   TWIX — Design System v2  (animated, glassy, alive)
+   TWIX — Design System v3  (dramatic live background)
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-    --bg: #0a0705;
-    --bg-2: #120e0a;
-    --bg-3: #1c1510;
-    --bg-4: #261c13;
-    --border: rgba(255,153,51,.15);
+    --bg: #080503;
+    --bg-2: #100c08;
+    --bg-3: #1a1208;
+    --bg-4: #231808;
+    --border: rgba(255,153,51,.14);
     --border-h: rgba(255,153,51,.35);
     --accent: #ff9933;
-    --accent-d: #cc7a00;
+    --accent-d: #cc7700;
     --accent-g: rgba(255,153,51,.12);
-    --glow: rgba(255,153,51,.25);
+    --glow: rgba(255,153,51,.3);
     --text: #f5ece2;
     --muted: #8a7060;
     --subtle: #4a3525;
@@ -23,8 +23,8 @@
     --r-pill: 99px;
     --font-h: 'Syne', sans-serif;
     --font-b: 'DM Sans', sans-serif;
-    --glass: rgba(18,14,10,.75);
-    --glass-b: rgba(255,153,51,.08);
+    --glass: rgba(10,7,4,.72);
+    --glass-b: rgba(255,153,51,.06);
 }
 
 *, *::before, *::after {
@@ -69,23 +69,203 @@ a {
     border-radius: 99px;
 }
 
-/* ── Canvas background ────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   ANIMATED BACKGROUND SCENE
+   ══════════════════════════════════════════════════════════════ */
+
+.bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Perspective grid */
+.bg-grid {
+    position: absolute;
+    inset: -20%;
+    background-image: linear-gradient(rgba(255,153,51,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,153,51,.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    transform: perspective(600px) rotateX(35deg) scale(1.6);
+    transform-origin: center 80%;
+    animation: grid-drift 20s linear infinite;
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.6) 30%, rgba(0,0,0,.6) 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.6) 30%, rgba(0,0,0,.6) 70%, transparent 100%);
+}
+
+@keyframes grid-drift {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 0 60px;
+    }
+}
+
+/* Big glowing blobs */
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0;
+    animation: blob-appear 2s ease forwards;
+}
+
+.blob-1 {
+    width: 700px;
+    height: 700px;
+    top: -200px;
+    left: -150px;
+    background: radial-gradient(circle, rgba(255,120,0,.22) 0%, rgba(255,60,0,.08) 50%, transparent 70%);
+    animation: blob-appear 1.5s ease forwards, blob-float-1 18s ease-in-out 1.5s infinite;
+}
+
+.blob-2 {
+    width: 600px;
+    height: 600px;
+    bottom: -100px;
+    right: -100px;
+    background: radial-gradient(circle, rgba(255,153,51,.18) 0%, rgba(200,80,0,.06) 50%, transparent 70%);
+    animation: blob-appear 2s ease forwards, blob-float-2 22s ease-in-out 2s infinite;
+}
+
+.blob-3 {
+    width: 450px;
+    height: 450px;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,180,50,.1) 0%, rgba(180,80,0,.04) 50%, transparent 70%);
+    animation: blob-appear 2.5s ease forwards, blob-float-3 26s ease-in-out 2.5s infinite;
+}
+
+.blob-4 {
+    width: 350px;
+    height: 350px;
+    top: 20%;
+    right: 10%;
+    background: radial-gradient(circle, rgba(255,100,0,.12) 0%, transparent 65%);
+    animation: blob-appear 3s ease forwards, blob-float-4 15s ease-in-out 3s infinite;
+}
+
+@keyframes blob-appear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes blob-float-1 {
+    0%,100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(60px, 80px) scale(1.08);
+    }
+
+    66% {
+        transform: translate(-40px, 50px) scale(.95);
+    }
+}
+
+@keyframes blob-float-2 {
+    0%,100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    40% {
+        transform: translate(-80px, -60px) scale(1.1);
+    }
+
+    70% {
+        transform: translate(30px, -90px) scale(.92);
+    }
+}
+
+@keyframes blob-float-3 {
+    0%,100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    30% {
+        transform: translate(-50%, -50%) scale(1.15) rotate(30deg);
+    }
+
+    60% {
+        transform: translate(-50%, -50%) scale(.9) rotate(-20deg);
+    }
+}
+
+@keyframes blob-float-4 {
+    0%,100% {
+        transform: translate(0, 0);
+    }
+
+    50% {
+        transform: translate(-50px, 80px) scale(1.2);
+    }
+}
+
+/* Film-grain noise texture */
+.bg-noise {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: .35;
+    mix-blend-mode: overlay;
+    animation: noise-shift 8s steps(1) infinite;
+}
+
+@keyframes noise-shift {
+    0% {
+        background-position: 0 0;
+    }
+
+    25% {
+        background-position: -50px 20px;
+    }
+
+    50% {
+        background-position: 20px -30px;
+    }
+
+    75% {
+        background-position: -30px -50px;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+/* Particle canvas on top of blobs */
 #bg-canvas {
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
 }
 
-/* ── Everything sits above canvas ─────────────────────────────── */
+/* Everything sits above background */
 .app-shell, .auth-wrap {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
-/* ── App shell ────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════════════════════════════ */
+
 .app-shell {
     display: flex;
     min-height: 100vh;
@@ -106,9 +286,9 @@ a {
     top: 0;
     height: 100vh;
     overflow-y: auto;
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(8,5,3,.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
 }
 
 .sidebar-logo {
@@ -116,17 +296,17 @@ a {
     font-size: 36px;
     color: var(--accent);
     padding: 8px 12px 16px;
-    text-shadow: 0 0 30px var(--glow);
+    text-shadow: 0 0 30px var(--glow), 0 0 60px rgba(255,153,51,.15);
     animation: pulse-logo 3s ease-in-out infinite;
 }
 
 @keyframes pulse-logo {
-    0%, 100% {
+    0%,100% {
         text-shadow: 0 0 20px var(--glow);
     }
 
     50% {
-        text-shadow: 0 0 40px rgba(255,153,51,.5), 0 0 80px rgba(255,153,51,.2);
+        text-shadow: 0 0 50px rgba(255,153,51,.6), 0 0 100px rgba(255,100,0,.2);
     }
 }
 
@@ -169,7 +349,6 @@ a {
 }
 
 .nav-logout {
-    margin-top: auto;
     color: var(--muted);
 }
 
@@ -203,9 +382,9 @@ a {
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(8,5,3,.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     z-index: 10;
 }
 
@@ -218,7 +397,7 @@ a {
 .feed-tabs {
     display: flex;
     border-bottom: 1px solid var(--border);
-    background: var(--glass);
+    background: rgba(8,5,3,.6);
     backdrop-filter: blur(12px);
 }
 
@@ -228,7 +407,6 @@ a {
     padding: 14px;
     color: var(--muted);
     font-weight: 500;
-    cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all .2s;
     text-decoration: none;
@@ -250,13 +428,12 @@ a {
     gap: 12px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
-    background: var(--glass-b);
-    backdrop-filter: blur(8px);
+    background: rgba(255,153,51,.03);
     transition: background .2s;
 }
 
     .compose-box:focus-within {
-        background: rgba(255,153,51,.05);
+        background: rgba(255,153,51,.06);
         border-bottom-color: var(--border-h);
     }
 
@@ -274,7 +451,7 @@ a {
     justify-content: center;
     flex-shrink: 0;
     text-transform: uppercase;
-    box-shadow: 0 0 16px var(--glow);
+    box-shadow: 0 0 20px var(--glow);
 }
 
 .compose-form {
@@ -318,8 +495,8 @@ a {
     gap: 12px;
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
-    transition: background .2s, border-color .2s, transform .15s;
-    /* scroll reveal starts hidden */
+    transition: background .2s, border-left-color .2s;
+    border-left: 2px solid transparent;
     opacity: 0;
     transform: translateY(20px);
     animation: slide-up .4s ease forwards;
@@ -327,44 +504,43 @@ a {
 
     .post-card:hover {
         background: rgba(255,153,51,.04);
-        border-left: 2px solid var(--border-h);
+        border-left-color: var(--border-h);
     }
 
-    /* Staggered animation for post cards */
     .post-card:nth-child(1) {
-        animation-delay: .05s;
+        animation-delay: .04s
     }
 
     .post-card:nth-child(2) {
-        animation-delay: .10s;
+        animation-delay: .08s
     }
 
     .post-card:nth-child(3) {
-        animation-delay: .15s;
+        animation-delay: .12s
     }
 
     .post-card:nth-child(4) {
-        animation-delay: .20s;
+        animation-delay: .16s
     }
 
     .post-card:nth-child(5) {
-        animation-delay: .25s;
+        animation-delay: .20s
     }
 
     .post-card:nth-child(6) {
-        animation-delay: .30s;
+        animation-delay: .24s
     }
 
     .post-card:nth-child(7) {
-        animation-delay: .35s;
+        animation-delay: .28s
     }
 
     .post-card:nth-child(8) {
-        animation-delay: .40s;
+        animation-delay: .32s
     }
 
     .post-card:nth-child(n+9) {
-        animation-delay: .45s;
+        animation-delay: .36s
     }
 
 @keyframes slide-up {
@@ -394,7 +570,7 @@ a {
 
 .post-card:hover .post-avatar {
     border-color: var(--accent);
-    box-shadow: 0 0 12px var(--glow);
+    box-shadow: 0 0 14px var(--glow);
 }
 
 .post-body {
@@ -490,29 +666,40 @@ a {
     padding: 1px 7px;
     border-radius: var(--r-pill);
     vertical-align: middle;
-    box-shadow: 0 0 8px var(--glow);
+    box-shadow: 0 0 10px var(--glow);
 }
 
 /* ── Profile ──────────────────────────────────────────────────── */
 .profile-banner {
-    height: 140px;
-    background: linear-gradient(135deg, #2a1a08 0%, #3d2200 40%, #1a0f05 100%);
+    height: 160px;
     position: relative;
     overflow: hidden;
+    background: linear-gradient(135deg, #1a0800 0%, #3d1800 40%, #0f0500 100%);
 }
+
+    .profile-banner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient( 60deg, transparent, transparent 40px, rgba(255,153,51,.04) 40px, rgba(255,153,51,.04) 41px );
+    }
 
     .profile-banner::after {
         content: '';
         position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient( 45deg, transparent, transparent 30px, rgba(255,153,51,.03) 30px, rgba(255,153,51,.03) 60px );
+        width: 400px;
+        height: 400px;
+        top: -150px;
+        left: -80px;
+        background: radial-gradient(circle, rgba(255,120,0,.25) 0%, transparent 65%);
+        animation: blob-float-1 12s ease-in-out infinite;
     }
 
 .profile-info {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
-    background: var(--glass);
-    backdrop-filter: blur(12px);
+    background: rgba(8,5,3,.7);
+    backdrop-filter: blur(16px);
 }
 
 .profile-avatar-lg {
@@ -531,7 +718,7 @@ a {
     margin-top: -38px;
     margin-bottom: 12px;
     text-transform: uppercase;
-    box-shadow: 0 0 24px var(--glow);
+    box-shadow: 0 0 30px var(--glow), 0 0 60px rgba(255,100,0,.15);
 }
 
 .profile-name-row {
@@ -588,20 +775,20 @@ a {
 .auth-card {
     width: 100%;
     max-width: 420px;
-    background: var(--glass);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(10,7,4,.85);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
     border: 1px solid var(--border-h);
     border-radius: var(--r-lg);
     padding: 40px;
-    box-shadow: 0 0 60px rgba(255,153,51,.08), 0 32px 64px rgba(0,0,0,.4);
-    animation: card-in .5s cubic-bezier(.16,1,.3,1) both;
+    box-shadow: 0 0 80px rgba(255,100,0,.1), 0 0 160px rgba(255,100,0,.05), 0 32px 64px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,153,51,.08);
+    animation: card-in .55s cubic-bezier(.16,1,.3,1) both;
 }
 
 @keyframes card-in {
     from {
         opacity: 0;
-        transform: translateY(30px) scale(.97);
+        transform: translateY(40px) scale(.96);
     }
 
     to {
@@ -612,11 +799,11 @@ a {
 
 .auth-logo {
     font-family: var(--font-h);
-    font-size: 52px;
+    font-size: 56px;
     color: var(--accent);
     text-align: center;
     margin-bottom: 4px;
-    text-shadow: 0 0 40px var(--glow);
+    text-shadow: 0 0 40px var(--glow), 0 0 80px rgba(255,100,0,.2);
     animation: pulse-logo 3s ease-in-out infinite;
 }
 
@@ -660,7 +847,7 @@ a {
 
     .input:focus {
         border-color: var(--accent);
-        background: rgba(255,153,51,.06);
+        background: rgba(255,153,51,.07);
         box-shadow: 0 0 0 3px rgba(255,153,51,.1);
     }
 
@@ -729,22 +916,7 @@ textarea.input {
     text-decoration: none;
     transition: all .2s;
     white-space: nowrap;
-    position: relative;
-    overflow: hidden;
 }
-
-    .btn::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: rgba(255,255,255,.08);
-        opacity: 0;
-        transition: opacity .2s;
-    }
-
-    .btn:hover::after {
-        opacity: 1;
-    }
 
     .btn:hover {
         text-decoration: none;
@@ -762,7 +934,7 @@ textarea.input {
 }
 
     .btn-primary:hover {
-        box-shadow: 0 6px 28px rgba(255,153,51,.45);
+        box-shadow: 0 6px 32px rgba(255,153,51,.5);
     }
 
 .btn-outline {
@@ -822,8 +994,8 @@ textarea.input {
 .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.7);
-    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -842,15 +1014,15 @@ textarea.input {
 }
 
 .modal {
-    background: var(--glass);
-    backdrop-filter: blur(24px);
+    background: rgba(12,8,4,.92);
+    backdrop-filter: blur(32px);
     border: 1px solid var(--border-h);
     border-radius: var(--r-lg);
     padding: 24px;
     width: 100%;
     max-width: 520px;
     margin: 20px;
-    box-shadow: 0 0 60px rgba(255,153,51,.1);
+    box-shadow: 0 0 80px rgba(255,100,0,.12), 0 32px 64px rgba(0,0,0,.5);
     animation: card-in .25s cubic-bezier(.16,1,.3,1) both;
 }
 
@@ -936,7 +1108,7 @@ textarea.input {
 }
 
 .panel-card {
-    background: var(--glass);
+    background: rgba(10,7,4,.7);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
@@ -966,13 +1138,13 @@ textarea.input {
 
 .admin-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+    grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
     gap: 16px;
     margin-bottom: 24px;
 }
 
 .stat-card {
-    background: var(--glass);
+    background: rgba(12,8,4,.8);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
@@ -984,8 +1156,8 @@ textarea.input {
 
     .stat-card:hover {
         border-color: var(--border-h);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(255,153,51,.08);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 32px rgba(255,153,51,.1);
     }
 
     .stat-card.danger {
@@ -1026,7 +1198,7 @@ textarea.input {
     }
 
 .admin-card {
-    background: var(--glass);
+    background: rgba(12,8,4,.8);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
@@ -1036,7 +1208,7 @@ textarea.input {
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--glass);
+    background: rgba(10,7,4,.75);
     backdrop-filter: blur(12px);
     border-radius: var(--r-lg);
     overflow: hidden;
@@ -1059,7 +1231,6 @@ textarea.input {
         border-bottom: 1px solid var(--border);
         vertical-align: middle;
         font-size: 14px;
-        transition: background .15s;
     }
 
     .admin-table tr:last-child td {
@@ -1081,7 +1252,7 @@ textarea.input {
     align-items: center;
 }
 
-/* ── Scroll reveal (JS adds .revealed) ───────────────────────── */
+/* ── Scroll reveal ────────────────────────────────────────────── */
 .reveal {
     opacity: 0;
     transform: translateY(24px);
